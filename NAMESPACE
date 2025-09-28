@@ -1,5 +1,5 @@
-export(Sepable_cox.r)
-export(SeparatedIDE.r)
+export(Sepable_cox)
+export(SeparatedIDE)
 import(survival)
 import(MASS)
 import(compiler)
