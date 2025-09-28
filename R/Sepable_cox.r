@@ -2,7 +2,7 @@
 #data=meta.gen(n=500,L1=1,L2=1,L3=3,b01=0,b02=0,b03=0.5,cc1=2,cc2=2)
 #z.level=c(0,1);p.time=seq(0,1.5,by=0.01);setting="median";type="CP"
 #z.level=c(0,1);data=data_F;setting="user";level=lv_F;type="SP"
-library(survival)
+
 
 Sepable_cox=function(p.time,z.level,data,setting="median",level=NULL,type="SP"){
 #############################################
@@ -537,3 +537,4 @@ return(report)
 }
 
 #Sepable_cox(p.time=c(0,0.1,0.2),c(0,1),data)
+
