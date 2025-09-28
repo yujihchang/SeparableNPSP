@@ -1,4 +1,4 @@
-Package: Separable_NPSP
+Package: SeparableNPSP
 Type: Package
 Title: Separable Effects for (Semi)Competing Risks Mediation Analysis
 Version: 0.1.0
