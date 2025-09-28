@@ -1,4 +1,4 @@
-Package: separableEffect
+Package: Separable_NPSP
 Type: Package
 Title: Separable Effects for (Semi)Competing Risks Mediation Analysis
 Version: 0.1.0
@@ -16,17 +16,13 @@ Description: Tools to estimate separable direct and indirect effects for mediati
     into disjoint components (affecting the primary outcome directly versus via
     the intermediate outcome). Methods are motivated by and derived in:
     Yu and Huang (2025) "Separable Effects of Semicompeting Risks: The Effects of
-    Hepatitis B on Liver Cancer via Liver Cirrhosis", Stat Med, doi:10.1002/sim.70178.
+    Hepatitis B on Liver Cancer via Liver Cirrhosis", Statistics in Medicine, doi:10.1002/sim.70178.
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
 Depends: R (>= 4.1.0)
 Imports:
     survival
-Suggests:
-    graphics,
-    stats
-URL: https://github.com/<your-org>/separableEffect
-BugReports: https://github.com/<your-org>/separableEffect/issues
+URL: https://github.com/yujihchang/Separable_NPSP
+BugReports: https://github.com/yujihchang/Separable_NPSP/issues
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
