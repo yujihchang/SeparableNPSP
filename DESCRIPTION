@@ -1,12 +1,32 @@
-Package: SEMICMM
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0009-0005-1743-5427"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Package: separableEffect
+Type: Package
+Title: Separable Effects for (Semi)Competing Risks Mediation Analysis
+Version: 0.1.0
+Authors@R: c(
+    person(given = "Jih-Chang", family = "Yu", role = c("aut", "cre"),
+           email = "jcyu@gm.ntpu.edu.tw"),
+    person(given = "Yen-Tsung", family = "Huang", role = "aut")
+  )
+Description: Tools to estimate separable direct and indirect effects for mediation
+    analysis in (semi)competing risks. The package implements two complementary
+    estimators: (1) a model-free nonparametric method based on counting-process
+    / multistate hazard decomposition, and (2) a semiparametric method that
+    leverages Cox proportional hazards models to flexibly adjust for confounders.
+    Both approaches target counterfactual risk contrasts under an exposure split
+    into disjoint components (affecting the primary outcome directly versus via
+    the intermediate outcome). Methods are motivated by and derived in:
+    Yu and Huang (2025) "Separable Effects of Semicompeting Risks: The Effects of
+    Hepatitis B on Liver Cancer via Liver Cirrhosis", Stat Med, doi:10.1002/sim.70178.
+License: GPL-3
 Encoding: UTF-8
+LazyData: true
+Depends: R (>= 4.1.0)
+Imports:
+    survival
+Suggests:
+    graphics,
+    stats
+URL: https://github.com/<your-org>/separableEffect
+BugReports: https://github.com/<your-org>/separableEffect/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.2
+RoxygenNote: 7.3.1
