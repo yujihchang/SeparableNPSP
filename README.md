@@ -17,11 +17,3 @@ Both methods are motivated by the paper:
 > Yu, J.-C. and Huang, Y.-T. (2025).  
 > *Separable Effects of Semicompeting Risks: The Effects of Hepatitis B on Liver Cancer via Liver Cirrhosis.*  
 > *Statistics in Medicine.* doi: [10.1002/sim.70178](https://doi.org/10.1002/sim.70178)
-
----
-
-## Installation
-
-```r
-# From GitHub (example)
-devtools::install_github("your-org/Separable_NPSP")
