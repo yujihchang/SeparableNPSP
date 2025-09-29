@@ -72,7 +72,7 @@ A list with components:
 ## Minimal example using the built-in data object 'expdata'
 ## (ships with the package under data/expdata.rda)
 data("expdata", package = "SeparableNPSP")
-data <- expdata
+
 
 ## Time grid
 P.time <- seq(0, 1.5, by = 0.01)
@@ -93,3 +93,4 @@ legend("topleft", c("DE","IE"), lty = c(1,2), bty = "n")
 \seealso{
 \code{\link{Xu2010}}
 }
+
