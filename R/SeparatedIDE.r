@@ -94,7 +94,6 @@ apply(matrix(yy),1,pla)
 
 tpye_CS=(type=="SP")*1
 
-library("expm")
 Xu2010_0=function(T1,T2,d1,d2){
 #T1=x.obs_1;T2=y.obs_1;d2=dy_1
 
