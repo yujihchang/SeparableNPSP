@@ -74,17 +74,51 @@ A list with components:
 data("expdata", package = "SeparableNPSP")
 
 
-## Time grid
 P.time <- seq(0, 1.5, by = 0.01)
 
-## Run
-ans <- SeparatedIDE(P.time, data, type = "SP")
+# Split data by the first covariate being 1 vs 0
+data_1 <- data[data$covariate[, 1] == 1, ]
+data_0 <- data[data$covariate[, 1] == 0, ]
 
-## Quick plot
-plot(P.time, ans$DE, type = "l",
-     xlab = "Time", ylab = "Effect")
-lines(P.time, ans$IE, lty = 2)
-legend("topleft", c("DE","IE"), lty = c(1,2), bty = "n")
+par(mfrow = c(2, 2))
+
+# Compute effects for covariate level 1 and 0 (nonparametric)
+Ans_1 <- SeparatedIDE(P.time, data_1, type = "SP")
+Ans_0 <- SeparatedIDE(P.time, data_0, type = "SP")
+
+# Compute effects from the separable Cox approach at specified levels (semiparametric)
+Ans.cox_0 <- Sepable_cox(P.time, z.level = c(0, 1), data, setting = "user", level = c(0, 0), type = "SP")
+Ans.cox_1 <- Sepable_cox(P.time, z.level = c(0, 1), data, setting = "user", level = c(1, 0), type = "SP")
+
+## --- Plot 1: DE given covariate = 0 ---
+# y-axis is DE given covariate at level 0
+plot(P.time, Ans_0$DE, type = "s", col = 1,
+     xlab = "Time", ylab = "Direct Effect (DE) given covariate = 0",
+     main = "DE | covariate = 0")
+points(P.time, Ans.cox_0$DE, type = "s", col = 2)
+legend("topleft", bty = "n", lty = 1, col = c(1, 2),
+       legend = c("SeparatedIDE (nonparametric)", "Separable Cox (semiparametric)"))
+
+## --- Plot 2: IE given covariate = 0 ---
+# y-axis is IE given covariate at level 0
+plot(P.time, Ans_0$IE, type = "s", col = 1,
+     xlab = "Time", ylab = "Indirect Effect (IE) given covariate = 0",
+     main = "IE | covariate = 0")
+points(P.time, Ans.cox_0$IE, type = "s", col = 2)
+
+## --- Plot 3: DE given covariate = 1 ---
+# y-axis is DE given covariate at level 1
+plot(P.time, Ans_1$DE, type = "s", col = 1,
+     xlab = "Time", ylab = "Direct Effect (DE) given covariate = 1",
+     main = "DE | covariate = 1")
+points(P.time, Ans.cox_1$DE, type = "s", col = 2)
+
+## --- Plot 4: IE given covariate = 1 ---
+# y-axis is IE given covariate at level 1
+plot(P.time, Ans_1$IE, type = "s", col = 1,
+     xlab = "Time", ylab = "Indirect Effect (IE) given covariate = 1",
+     main = "IE | covariate = 1")
+points(P.time, Ans.cox_1$IE, type = "s", col = 2)
 }
 }
 \keyword{survival}
@@ -93,4 +127,5 @@ legend("topleft", c("DE","IE"), lty = c(1,2), bty = "n")
 \seealso{
 \code{\link{Xu2010}}
 }
+
 
