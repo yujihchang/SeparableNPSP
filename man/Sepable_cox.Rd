@@ -99,47 +99,129 @@ Requires the \pkg{survival} package (for \code{coxph} and \code{Surv}).
 }
 \examples{
 \donttest{
-library(survival)
+## This example uses an example dataset stored as 'expdata.rda'.
+## Recommended placement in a package:
+##   - As a file users can load with data():   data/expdata.rda  (object named 'expdata')
+##   - As a raw file to read via system.file: inst/extdata/expdata.rda
+## The helper below tries both, and falls back to local files if running outside a package.
 
-## Minimal toy data (replace with study data)
-set.seed(123)
-n  <- 300
-X1 <- rexp(n, 0.25)
-X2 <- X1 + rexp(n, 0.20)
-D1 <- rbinom(n, 1, 0.7)
-D2 <- rbinom(n, 1, 0.6)
-S  <- rbinom(n, 1, 0.5)
+load_expdata <- function() {
+  # 1) Try data(expdata) if shipped as a data object
+  ok1 <- tryCatch({ data("expdata", package = "<yourPackageName>"); TRUE }, error = function(e) FALSE)
+  if (ok1 && exists("expdata", inherits = FALSE)) {
+    return(get("expdata"))
+  }
+  # 2) Try system.file under inst/extdata
+  fp <- tryCatch(system.file("extdata", "expdata.rda", package = "<yourPackageName>"), error = function(e) "")
+  if (!is.null(fp) && nzchar(fp) && file.exists(fp)) {
+    env <- new.env(parent = emptyenv())
+    load(fp, envir = env)
+    # Heuristics: prefer object named 'data' or 'expdata'
+    nm <- intersect(c("data", "expdata"), ls(env))
+    if (length(nm) == 0L) nm <- ls(env)
+    return(get(nm[1L], envir = env))
+  }
+  # 3) Try common local paths when examples are run from the repo
+  for (p in c("data/expdata.rda", "inst/extdata/expdata.rda", "expdata.rda")) {
+    if (file.exists(p)) {
+      env <- new.env(parent = emptyenv())
+      load(p, envir = env)
+      nm <- intersect(c("data", "expdata"), ls(env))
+      if (length(nm) == 0L) nm <- ls(env)
+      return(get(nm[1L], envir = env))
+    }
+  }
+  stop("Could not find 'expdata.rda'. Place it under data/ as 'expdata', or under inst/extdata/.")
+}
 
-## Optional covariates matrix (two baseline covariates)
-covariate <- cbind(rnorm(n), runif(n, -1, 1))
+## Load example data into an object named 'data' expected by the example code below.
+tmp <- load_expdata()
+if (exists("X1", where = tmp, inherits = FALSE)) {
+  # If the loaded object is an environment, coerce to data.frame if possible
+  data <- as.data.frame(as.list(tmp))
+} else if (is.data.frame(tmp)) {
+  data <- tmp
+} else {
+  # If the object was named 'expdata' or 'data' already as a data.frame:
+  if (exists("expdata", inherits = FALSE) && is.data.frame(expdata)) data <- expdata
+  if (exists("data", inherits = FALSE) && is.data.frame(data)) data <- data
+}
 
-dat <- data.frame(X1 = X1, X2 = X2, D1 = D1, D2 = D2, S = S)
-dat$covariate <- covariate
+## Ensure required columns exist (X1, X2, D1, D2, S). 'covariate' is optional but
+## used below to split by its first column.
+stopifnot(all(c("X1", "X2", "D1", "D2", "S") %in% names(data)))
 
-pt <- seq(0, quantile(X2, 0.9), length.out = 60)
+## Time grid for evaluating separable-effect curves
+P.time <- seq(0, 1.5, by = 0.01)
 
-## Semicompeting risks (default)
-fit_sp <- Sepable_cox(
-  p.time = pt,
-  z.level = c(0, 1),
-  data = dat,
-  setting = "median",
-  type = "SP"
+## Split data by the first covariate being 1 vs 0
+## (Adjust if your 'covariate' is stored differently.)
+if ("covariate" %in% names(data)) {
+  data_1 <- data[data$covariate[, 1] == 1, ]
+  data_0 <- data[data$covariate[, 1] == 0, ]
+} else {
+  ## If no 'covariate' is present, use S as a simple splitter for illustration.
+  data_1 <- subset(data, S == 1)
+  data_0 <- subset(data, S == 0)
+}
+
+## Nonparametric/semi-nonparametric separable effects (IDE-style)
+Ans_1 <- SeparatedIDE(P.time, data_1, type = "SP")
+Ans_0 <- SeparatedIDE(P.time, data_0, type = "SP")
+
+## Semiparametric separable effects via Cox models.
+## 'setting = "user"' + 'level = ...' pins reference covariates explicitly.
+Ans.cox_0 <- Sepable_cox(
+  p.time   = P.time,
+  z.level  = c(0, 1),
+  data     = data,
+  setting  = "user",
+  level    = c(0, 0),
+  type     = "SP"
+)
+Ans.cox_1 <- Sepable_cox(
+  p.time   = P.time,
+  z.level  = c(0, 1),
+  data     = data,
+  setting  = "user",
+  level    = c(1, 0),
+  type     = "SP"
 )
 
-## Competing risks only
-fit_cp <- Sepable_cox(
-  p.time = pt,
-  z.level = c(0, 1),
-  data = dat,
-  setting = "median",
-  type = "CP"
-)
+## Plot: DE/IE given covariate at level 0 or 1, comparing IDE vs Cox approaches
+op <- par(mfrow = c(2, 2))
 
-plot(pt, fit_sp$DE, type = "l", ylim = range(c(fit_sp$DE, fit_sp$IE)),
-     xlab = "Time", ylab = "Effect")
-lines(pt, fit_sp$IE, lty = 2)
-legend("topleft", c("DE (SP)", "IE (SP)"), lty = c(1, 2), bty = "n")
+## --- Plot 1: DE given covariate = 0 ---
+## y-axis: DE given covariate at level 0
+plot(P.time, Ans_0$DE, type = "s", col = 1,
+     xlab = "Time", ylab = "Direct Effect (DE) given covariate = 0",
+     main = "DE | covariate = 0")
+points(P.time, Ans.cox_0$DE, type = "s", col = 2)
+legend("topleft", bty = "n", lty = 1, col = c(1, 2),
+       legend = c("SeparatedIDE (nonparametric)", "Separable Cox (semiparametric)"))
+
+## --- Plot 2: IE given covariate = 0 ---
+## y-axis: IE given covariate at level 0
+plot(P.time, Ans_0$IE, type = "s", col = 1,
+     xlab = "Time", ylab = "Indirect Effect (IE) given covariate = 0",
+     main = "IE | covariate = 0")
+points(P.time, Ans.cox_0$IE, type = "s", col = 2)
+
+## --- Plot 3: DE given covariate = 1 ---
+## y-axis: DE given covariate at level 1
+plot(P.time, Ans_1$DE, type = "s", col = 1,
+     xlab = "Time", ylab = "Direct Effect (DE) given covariate = 1",
+     main = "DE | covariate = 1")
+points(P.time, Ans.cox_1$DE, type = "s", col = 2)
+
+## --- Plot 4: IE given covariate = 1 ---
+## y-axis: IE given covariate at level 1
+plot(P.time, Ans_1$IE, type = "s", col = 1,
+     xlab = "Time", ylab = "Indirect Effect (IE) given covariate = 1",
+     main = "IE | covariate = 1")
+points(P.time, Ans.cox_1$IE, type = "s", col = 2)
+
+par(op)
 }
 }
 \keyword{survival}
