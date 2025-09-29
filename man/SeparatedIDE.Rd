@@ -197,4 +197,8 @@ par(op)
 \keyword{survival}
 \keyword{mediation}
 \keyword{semicompeting-risks}
+\seealso{
+\code{\link{Sepable_cox}}
+}
+
 
