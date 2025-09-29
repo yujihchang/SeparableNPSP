@@ -101,7 +101,7 @@ Requires the \pkg{survival} package (for \code{coxph} and \code{Surv}).
 \donttest{
 ## Minimal example using the built-in data object 'expdata'
 data("expdata", package = "SeparableNPSP")
-data <- expdata
+
 
 ## Time grid
 P.time <- seq(0, 1.5, by = 0.01)
